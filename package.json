@@ -1,0 +1,29 @@
+{
+  "name": "mysite",
+  "version": "1.0.0",
+  "description": "myOwnSite",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "bootstrap": "^4.3.1",
+    "ejs": "^2.7.1",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "iterate-object": "^1.3.3",
+    "mongodb": "^3.3.3",
+    "nodemailer": "^6.3.1",
+    "password-validator": "^5.0.2",
+    "path": "^0.12.7",
+    "pug": "^2.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "site",
+    "app"
+  ],
+  "author": "Dmitry",
+  "license": "ISC"
+}

@@ -1,0 +1,35 @@
+body{
+  background: #696969;
+  margin: 0;
+}
+
+h1{
+  color: white;
+}
+
+main{
+  margin-top: 78px;
+  max-width: 100%;
+  height: auto;
+}
+
+#emailField{
+  color: #8B0000;
+}
+
+#userField{
+  color: #8B0000;
+}
+
+#passField{
+  color: #8B0000;
+}
+
+#repassField{
+  color: #8B0000;
+}
+
+a{
+  color: black;
+  text-decoration: none;
+}
