@@ -1,10 +1,6 @@
 body{
-  background: #696969;
+  background: #E6E6FA;
   margin: 0;
-}
-
-h1{
-  color: white;
 }
 
 main{
@@ -13,12 +9,39 @@ main{
   height: auto;
 }
 
+footer{
+  font-family: 'Roboto Thin';
+  text-align: center;
+  background-attachment: scroll;
+  background-position: 0% 0%;
+  position: fixed;
+  bottom: 0pt;
+  color: #4682B4;
+}
+
 #emailField{
   color: #8B0000;
+}
+#miniAva{
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+}
+
+#nomine{
+  color: white;
+}
+
+#nomine:hover{
+  color: #87CEFA;
 }
 
 #userField{
   color: #8B0000;
+}
+
+#nomineLink{
+  text-decoration: none;
 }
 
 #passField{
@@ -29,7 +52,29 @@ main{
   color: #8B0000;
 }
 
-a{
+#helloMessage{
+  color: white;
+}
+
+#aboutMessage{
   color: black;
+}
+
+.bg-dark{
+  background-color: #4682B4!important;
+}
+
+.linkTo{
+  color: white;
   text-decoration: none;
+}
+
+.ava{
+  width: 200px;
+  height: 200px;
+  border-radius: 100px;
+}
+
+.ava:hover{
+  opacity: 0.8;
 }

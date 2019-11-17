@@ -1,0 +1,184 @@
+#avaText{
+  display: none;
+}
+
+#followingText{
+  display: block;
+  margin: 0;
+}
+
+#formSub{
+  float: right;
+}
+
+#followingCounter{
+  display: block;
+}
+
+#subscribersCounter{
+  display: block;
+}
+
+#subscribersText{
+  display: block;
+  margin: 0;
+}
+
+#miniAva{
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+}
+
+#cameraIcon{
+  width: 30px;
+  height: 30px;
+}
+
+#addPicture{
+  display: none;
+}
+
+#addDocument{
+  display: none;
+}
+
+#addVideo{
+  display: none;
+}
+
+#cameraIcon{
+  position: relative;
+  margin-left: 20px;
+}
+
+#documentIcon{
+  position: relative;
+  margin-left: 20px;
+}
+
+#videoIcon{
+  position: relative;
+  margin-left: 20px;
+}
+
+#labelAva{
+  display: block;
+}
+
+#labelVideo{
+  display: block;
+}
+
+#labelDocument{
+  display: block;
+}
+
+#avaText:hover{
+  display: block;
+}
+
+#documentIcon{
+  width: 30px;
+  height: 30px
+}
+
+#videoIcon{
+  width: 30px;
+  height: 30px;
+}
+
+.container{
+  display: flex;
+  max-width: 1240px;
+  height: 1500px;
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+}
+
+.loginnedAs{
+  height: inherit;
+}
+
+.ava{
+  width: 200px;
+  height: 200px;
+  border-radius: 100px;
+}
+
+.ava:hover{
+  opacity: 0.8;
+}
+
+.avatar{
+  display: inline-block;
+  position: relative;
+}
+
+.postTextTemplate{
+  text-align: center;
+}
+
+.textFieldPost{
+  display: inline-block;
+}
+
+.textFieldPost>textarea{
+  resize: none;
+  overflow: hidden;
+}
+
+.avaForPost{
+  border-radius: 50px;
+}
+
+.avatar>form>#file-input{
+  display: none;
+}
+
+.mainInfoUser{
+  width: inherit;
+}
+
+.username{
+  display: inline-block;
+  margin-left: 13px;
+  margin-top: 15px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.name{
+  color: black;
+  margin: 0;
+}
+
+.subscribers{
+  float: right;
+  display: inline-block;
+  text-align: center;
+  margin-top: 15px;
+  vertical-align: top;
+}
+
+.post_header{
+  border-radius: 25px;
+}
+
+.following{
+  float: right;
+  display: inline-block;
+  text-align: center;
+  margin-top: 15px;
+  margin-right: 25px;
+}
+
+.addFunc{
+  display: inline-block;
+  position: absolute;
+}
+
+.aboutUser{
+  color: grey;
+}

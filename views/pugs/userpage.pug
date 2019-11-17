@@ -1,17 +1,92 @@
 doctype html
 html
   head
-    title= title
+    title <%- username %>
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    link(rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous")
+    link(rel="stylesheet" href="/public/css/style.css")
+    link(rel="stylesheet" href="/public/css/page.css")
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   body
     div.pos-f-t
       div.collapse#navbarToggleExternalContent
         div(class="bg-dark p-4")
-          h5(class="text-white h4")
-        span.text-muted
-          a(href="/") Выход
-          a(href="/") Новостная лента
+          h5(class="text-white h4") Вы вошли как <%- currentUser %>
+          span.text-muted
+            div.loginnedAs
+              <img src= <%- currentLogo %> id="miniAva" class="ava" />
+              a(href="/" class="linkTo") Выход
+              a(href="/" class="linkTo") Главная страница
       nav(class="navbar navbar-dark bg-dark")
         button(class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation")
           span(class="navbar-toggler-icon")
-        a(href="/")
-          h1 bloquespot
+        a(href="/" id="nomineLink")
+          h1#nomine bloquespot
+    main#content
+      div.container
+        div.mainInfoUser
+          div.avatar
+            label(for="file-input" id="labelAva")
+              <img src= <%- logo %>  class="ava"/>
+            <% if(currentUser == username){ %>
+            p#avaText Сменить аватарку
+            <form method="post" enctype="multipart/form-data" action="changeAva/<%- id %>" id="formAva">
+              input(id="file-input" type="file" name="avaPut" onchange="imageChange(this)")
+              input(type="submit")
+            </form>
+            <% }else{ %>
+
+            <% } %>
+          div.username
+            h1.name <%- username %>
+            p.aboutUser Укажите данные о себе!<br />(Увлечения, место работы, канал ютуба O_o)
+          div.subscribers
+            <form method="post" action= <%- url %>  id="formSub">
+              h1(id="subscribersCounter" name="subscribeCounter") <%- subscribers %>
+              p(id="subscribersText" name="subscribersText") подписчиков
+              <% if(currentUser == username){ %>
+
+              <% }else{ %>
+
+                if subscribe.indexOf(currentUser)
+                  button(type="submit" value="subscribe" class="btn btn-danger" id="subscribeButton") Подписаться
+                else
+                  button(type="submit" value="subscribe" class="btn btn-light" id="subscribeButton") Отписаться
+
+            </form>
+            <% } %>
+          div.following
+            h1#followingCounter <%- subscriptions %>
+            p#followingText подписан
+          <% if(currentUser == username){ %>
+          div.postTextTemplate
+            div.textFieldPost
+              <form>
+              </form>
+              <form method="post" action="addPost/<%- id %>">
+                textarea(rows="4" cols="80" class="form-control" id="exampleFormControlTextarea1" name="postText")
+                <input type="submit" value="Запостить">
+              </form>
+            div.addFunc
+              label(for="addPicture" id="labelAva")
+                img(src="https://cdn4.iconfinder.com/data/icons/web-ui-color/128/Camera-512.png" id="cameraIcon")
+              label(for="addDocument" id="labelDocument")
+                img(src="http://cholbonpool.ru/wp-content/uploads//2019/03/document-icon.png" id="documentIcon")
+              label(for="addVideo" id="labelVideo")
+                img(src="http://xanaduhotels.com.tr/public/images/galeri/20160122115050ddvideo-camera-icon_(1).png" id="videoIcon")
+              input(id="addPicture" type="file" name="addPicture")
+              input(id="addDocument" type="file" name="addDocument")
+              input(id="addVideo" type="file" name="addVideo")
+          <% }else{ %>
+
+          <% } %>
+          div.posts
+            if postValue > 0
+              <% for(let i = 0; i < posts.length; i++){ %>
+                <%- include(posts[i].postFile); %>
+              <% } %>
+    script(src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous")
+    script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous")
+    script(src="/public/scripts/autosize.min.js")
+    script(src="/public/scripts/scriptforpage.js")

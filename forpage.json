@@ -3,9 +3,13 @@
     "name": "",
     "url": "",
     "logo": "",
-    "facebook": "",
     "vk": "",
     "instagram": "",
-    "ownid": ""
+    "id": "",
+    "subscribers": 0,
+    "subscriptions": 0,
+    "localjson" : "",
+    "subscribe" : [],
+    "postValue" : 0
   }
 ]
