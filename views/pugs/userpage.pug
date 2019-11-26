@@ -32,7 +32,7 @@ html
             p#avaText Сменить аватарку
             <form method="post" enctype="multipart/form-data" action="changeAva/<%- id %>" id="formAva">
               input(id="file-input" type="file" name="avaPut" onchange="imageChange(this)")
-              input(type="submit")
+              input(type="submit" style="display: none;" id="changeAvaButton")
             </form>
             <% }else{ %>
 
@@ -63,20 +63,21 @@ html
             div.textFieldPost
               <form>
               </form>
-              <form method="post" action="addPost/<%- id %>">
-                textarea(rows="4" cols="80" class="form-control" id="exampleFormControlTextarea1" name="postText")
-                <input type="submit" value="Запостить">
+              <form method="post" enctype="multipart/form-data" action="addPost/<%- id %>">
+                div.textPostAdd
+                  textarea(rows="4" cols="80" class="form-control" id="exampleFormControlTextarea1" name="postText")
+                  <input type="submit" value="Запостить">
+                div.addFunc
+                  label(for="addPicture" id="labelAva")
+                    img(src="https://cdn4.iconfinder.com/data/icons/web-ui-color/128/Camera-512.png" id="cameraIcon")
+                  label(for="addDocument" id="labelDocument")
+                    img(src="https://cdn2.iconfinder.com/data/icons/circle-icons-1/64/music-512.png" id="documentIcon")
+                  label(for="addVideo" id="labelVideo")
+                    img(src="http://xanaduhotels.com.tr/public/images/galeri/20160122115050ddvideo-camera-icon_(1).png" id="videoIcon")
+                  input(id="addPicture" type="file" name="addPicture")
+                  input(id="addDocument" type="file" name="addDocument")
+                  input(id="addVideo" type="file" name="addVideo")
               </form>
-            div.addFunc
-              label(for="addPicture" id="labelAva")
-                img(src="https://cdn4.iconfinder.com/data/icons/web-ui-color/128/Camera-512.png" id="cameraIcon")
-              label(for="addDocument" id="labelDocument")
-                img(src="http://cholbonpool.ru/wp-content/uploads//2019/03/document-icon.png" id="documentIcon")
-              label(for="addVideo" id="labelVideo")
-                img(src="http://xanaduhotels.com.tr/public/images/galeri/20160122115050ddvideo-camera-icon_(1).png" id="videoIcon")
-              input(id="addPicture" type="file" name="addPicture")
-              input(id="addDocument" type="file" name="addDocument")
-              input(id="addVideo" type="file" name="addVideo")
           <% }else{ %>
 
           <% } %>

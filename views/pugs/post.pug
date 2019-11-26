@@ -1,34 +1,77 @@
-div(class="post_" + postId)
+div(id="post_" + postId style="margin: 0; width: 500px; height: auto; max-height: 600px" class="postsUser")
   div.post_header
     <a href="<%- url %>">
       <img src="<%- logo %>" width="60px" class="avaForPost" height="60px">
     </a>
-    <div class="post_header_info">
+    div.post_header_info
       h5.post_author
         a.author= username
-    </div>
-    <div class="post_date">
+    div.post_date
       a(class="post_link" href="/wall" + postId)
         p= dateHours + ":" + dateMinutes + " " + dateDay + " " + dateMonth
-    </div>
-  </div>
-  <div class="post_content">
-    <div class="post_info">
-      <div class="wall_text">
+  div.post_content
+    div.post_info
+      div.wall_text
         p= postText
-      </div>
-      <div class="likeHeaderButtons">
-        <div class="likeHeaderButtonsWrapper">
-          <div class="likeButton">
-            <a class="like">
-              <img src="">
-            </a>
-          </div>
-          <div class="repostButton">
-            <a class="repost">
-              <img src="">
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
+
+        - let images = postImages;
+        - let videos = postVideos;
+        - let files = postFiles;
+
+
+        if postVideos && postImages && postFiles
+          div.pictureWrapper
+            each img in images
+              img(src= img class="picture")
+          div.videoWrapper
+            each video in videos
+              video(width="640" height: auto; src= video class="video" loop controls)
+          div.musicWrapper
+            each file in files
+              video(controls class="music")
+                source(src= file type="audio/mp3")
+        else if postImages && postVideos
+          div.pictureWrapper
+            each img in images
+              img(src= img class="picture")
+          div.videoWrapper
+            each video in videos
+              video(width="640" height: auto; src= video class="video" loop controls)
+        else if postFiles && postVideos
+          div.videoWrapper
+            each video in videos
+              video(width="640" height: auto; src= video class="video" loop controls)
+          div.musicWrapper
+            each file in files
+              video(controls class="music")
+                source(src= file type="audio/mp3")
+        else if postFiles && postImages
+          div.pictureWrapper
+            each img in images
+              img(src= img class="picture")
+          div.musicWrapper
+            each file in files
+              video(controls class="music")
+                source(src= file type="audio/mp3")
+        else if postFiles
+          div.musicWrapper
+            each file in files
+              video(controls class="music")
+                source(src= file type="audio/mp3")    
+        else if postImages
+          div.pictureWrapper
+            each img in images
+              img(src= img class="picture")
+        else if postVideos
+          div.videoWrapper
+            each video in videos
+              video(width="640" height="480" src= video class="video" loop controls)
+
+      div.likeHeaderButtons
+        div.likeHeaderButtonsWrapper
+          div.likeButton
+            a.like
+              img(src="")
+          div.repostButton
+            a.repost
+              img(src="")

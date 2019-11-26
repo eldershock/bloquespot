@@ -18,6 +18,8 @@ let express = require("express"),
 
 let upload = multer({dest: "uploads/"});
 
+const mkdir = require('mkdirp-sync');
+
 const MongoClient = require("mongodb").MongoClient,
     jsonParser = express.json(),
     objectId = require("mongodb").ObjectID,
@@ -227,9 +229,14 @@ app.post("/user/:id", urlencodedParser, function(req, res) {
   res.sendStatus(204);
 })
 
-app.post("/user/addPost/:id", urlencodedParser, upload.array("addPicture", "addDocument", "addVideo"), function(req, res) {
+app.post("/user/addPost/:id", upload.fields([
+  {name: "addPicture"},
+  {name: "addVideo"},
+  {name: "addDocument"}
+]), function(req, res) {
   const collection = req.app.locals.collection;
   const collectionPost = req.app.locals.collectionPost;
+  const collectionPictures = req.app.locals.collectionPictures;
 
   collection.findOne({_id: ObjectId(req.params.id)}, function(err, doc) {
     fs.readFile("views/pugs/userpage.pug", "utf8", function(err, data) {
@@ -243,11 +250,13 @@ app.post("/user/addPost/:id", urlencodedParser, upload.array("addPicture", "addD
       post[0]["logo"] = page[0]["logo"];
       post[0]["name"] = page[0]["name"];
       post[0]["postText"] = req.body.postText;
+
       let json = JSON.stringify(page, null, 2);
 
-      let postJson = JSON.stringify(post, null, 2);
-
       let html = fn({postValue: page[0]["postValue"], subscribe: page[0]["subscribe"]});
+
+      postJson = JSON.stringify(post, null, 2);
+      fs.writeFileSync("views/jsons/post" + post[0]["postId"] + ".json", postJson);
 
       fs.readFile("views/pugs/post.pug", "utf8", function(err, data) {
 
@@ -291,22 +300,255 @@ app.post("/user/addPost/:id", urlencodedParser, upload.array("addPicture", "addD
           month = "ноября"
         }
 
-        let postHtml = fn({postId: post[0]["postId"], postText: post[0]["postText"], url: page[0]["url"], logo: page[0]["logo"], username: page[0]["name"], dateHours: now.getHours(), dateMinutes: now.getMinutes(), dateDay: now.getDate(), dateMonth: month});
-        fs.writeFileSync("views/pages/posts/post" + post[0]["postId"] + ".ejs", postHtml);
-        collectionPost.insertOne(postContents);
+        if(req.files){
+          mkdirp("uploads/" + req.params.id, function(err) {
+
+            if(req.files["addDocument"] && req.files["addPicture"] && req.files["addVideo"]){
+              console.log("лол")
+              postId = page[0]["postValue"];
+              const tempPathDocument = req.files["addDocument"][0].path;
+              const tempPathPicture = req.files["addPicture"][0].path;
+              const tempPathVideos = req.files["addVideo"][0].path;
+              let targetPathVideos = path.join(__dirname, "uploads/" + req.params.id + "/video" + post[0]["postId"] + ".mp4")
+              let targetPathDocument = path.join(__dirname, "uploads/" + req.params.id + "/document" + post[0]["postId"] + ".mp3")
+              let targetPathPicture = path.join(__dirname, "uploads/" + req.params.id + "/picture" + post[0]["postId"] + ".png")
+              if (path.extname(req.files["addDocument"][0].originalname).toLowerCase() === ".mp3"){
+                fs.rename(tempPathDocument, targetPathDocument, err => {
+
+                  if (path.extname(req.files["addPicture"][0].originalname).toLowerCase() === ".png" || path.extname(req.files["addPicture"][0].originalname).toLowerCase() === ".jpg"){
+                    fs.rename(tempPathPicture, targetPathPicture, err => {
+                      if (err) return handleError(err, res);
+                        if (path.extname(req.files["addVideo"][0].originalname).toLowerCase() === ".mp4" || path.extname(req.files["addVideo"][0].originalname).toLowerCase() === ".avi"){
+                          fs.rename(tempPathVideos, targetPathVideos, err => {
+                            if (err) return handleError(err, res);
+                            post[0]["postImages"].push("/pictures/" + post[0]["postId"]);
+                            post[0]["postFiles"].push("/files/" + post[0]["postId"]);
+                            post[0]["postVideos"].push("/videos/" + post[0]["postId"]);
+                            let postHtml = fn({postId: post[0]["postId"], postText: post[0]["postText"], url: page[0]["url"], logo: page[0]["logo"], username: page[0]["name"], dateHours: now.getHours(), dateMinutes: now.getMinutes(), dateDay: now.getDate(), dateMonth: month, postImages: post[0]["postImages"], postFiles: post[0]["postFiles"], postVideos: post[0]["postVideos"]});
+                            postJson = JSON.stringify(post, null, 2);
+                            fs.writeFileSync("views/jsons/post" + post[0]["postId"] + ".json", postJson);
+                            fs.writeFileSync("views/pages/posts/post" + post[0]["postId"] + ".ejs", postHtml);
+                            collectionPost.insertOne(postContents);
+                          });
+                        } else {
+                        fs.unlink(targetPathVideos, err => {
+                          if (err) return handleError(err, res);
+                        });
+                      }
+                    });
+                  } else {
+                  fs.unlink(targetPathPicture, err => {
+                    if (err) return handleError(err, res);
+                  });
+                }
+                });
+              } else {
+              fs.unlink(targetPathDocument, err => {
+                if (err) return handleError(err, res);
+              });
+              }
+            }else if(req.files["addVideo"] && req.files["addPicture"] && req.files["addDocument"] !== true){
+              postId = page[0]["postValue"];
+              const tempPathPicture = req.files["addPicture"][0].path;
+              const tempPathVideos = req.files["addVideo"][0].path;
+              let targetPathPicture = path.join(__dirname, "uploads/" + req.params.id + "/picture" + post[0]["postId"] + ".png")
+              let targetPathVideos = path.join(__dirname, "uploads/" + req.params.id + "/video" + post[0]["postId"] + ".mp4")
+
+              if (path.extname(req.files["addPicture"][0].originalname).toLowerCase() === ".png" || path.extname(req.files["addPicture"][0].originalname).toLowerCase() === ".jpg"){
+                fs.rename(tempPathPicture, targetPathPicture, err => {
+
+                  if (path.extname(req.files["addVideo"][0].originalname).toLowerCase() === ".mp4" || path.extname(req.files["addVideo"][0].originalname).toLowerCase() === ".avi"){
+                    fs.rename(tempPathVideos, targetPathVideos, err => {
+                      if (err) return handleError(err, res);
+                      post[0]["postImages"].push("/pictures/" + post[0]["postId"]);
+                      post[0]["postVideos"].push("/videos/" + post[0]["postId"]);
+                      let postHtml = fn({postId: post[0]["postId"], postText: post[0]["postText"], url: page[0]["url"], logo: page[0]["logo"], username: page[0]["name"], dateHours: now.getHours(), dateMinutes: now.getMinutes(), dateDay: now.getDate(), dateMonth: month, postVideos: post[0]["postVideos"], postImages: post[0]["postImages"]});
+                      postJson = JSON.stringify(post, null, 2);
+                      fs.writeFileSync("views/jsons/post" + post[0]["postId"] + ".json", postJson);
+                      fs.writeFileSync("views/pages/posts/post" + post[0]["postId"] + ".ejs", postHtml);
+                      collectionPost.insertOne(postContents);
+                    });
+                  } else {
+                  fs.unlink(targetPathVideos, err => {
+                    if (err) return handleError(err, res);
+                  });
+                }
+                });
+              } else {
+              fs.unlink(targetPathPicture, err => {
+                if (err) return handleError(err, res);
+              });
+              }
+            }else if(req.files["addVideo"] && req.files["addDocument"] && req.files["addPicture"] !== true){
+              postId = page[0]["postValue"];
+              const tempPathDocument = req.files["addDocument"][0].path;
+              const tempPathVideos = req.files["addVideo"][0].path;
+              let targetPathDocument = path.join(__dirname, "uploads/" + req.params.id + "/document" + post[0]["postId"] + ".mp3")
+              let targetPathVideos = path.join(__dirname, "uploads/" + req.params.id + "/video" + post[0]["postId"] + ".mp4")
+
+              if (path.extname(req.files["addDocument"][0].originalname).toLowerCase() === ".mp3"){
+                fs.rename(tempPathDocument, targetPathDocument, err => {
+
+                  if (path.extname(req.files["addVideo"][0].originalname).toLowerCase() === ".mp4" || path.extname(req.files["addVideo"][0].originalname).toLowerCase() === ".avi"){
+                    fs.rename(tempPathVideos, targetPathVideos, err => {
+                      if (err) return handleError(err, res);
+                      post[0]["postVideos"].push("/videos/" + post[0]["postId"]);
+                      post[0]["postFiles"].push("/files/" + post[0]["postId"]);
+                      let postHtml = fn({postId: post[0]["postId"], postText: post[0]["postText"], url: page[0]["url"], logo: page[0]["logo"], username: page[0]["name"], dateHours: now.getHours(), dateMinutes: now.getMinutes(), dateDay: now.getDate(), dateMonth: month, postVideos: post[0]["postVideos"], postFiles: post[0]["postFiles"]});
+                      postJson = JSON.stringify(post, null, 2);
+                      fs.writeFileSync("views/jsons/post" + post[0]["postId"] + ".json", postJson);
+                      fs.writeFileSync("views/pages/posts/post" + post[0]["postId"] + ".ejs", postHtml);
+                      collectionPost.insertOne(postContents);
+                    });
+                  } else {
+                  fs.unlink(targetPathVideos, err => {
+                    if (err) return handleError(err, res);
+                  });
+                }
+                });
+              } else {
+              fs.unlink(targetPathDocument, err => {
+                if (err) return handleError(err, res);
+              });
+              }
+            }else if(req.files["addDocument"] && req.files["addPicture"] && req.files["addVideo"] !== true){
+              postId = page[0]["postValue"];
+              const tempPathDocument = req.files["addDocument"][0].path;
+              const tempPathPicture = req.files["addPicture"][0].path;
+              let targetPathDocument = path.join(__dirname, "uploads/" + req.params.id + "/document" + post[0]["postId"] + ".mp3")
+              let targetPathPicture = path.join(__dirname, "uploads/" + req.params.id + "/picture" + post[0]["postId"] + ".png")
+
+              if (path.extname(req.files["addDocument"][0].originalname).toLowerCase() === ".mp3"){
+                fs.rename(tempPathDocument, targetPathDocument, err => {
+
+                  if (path.extname(req.files["addPicture"][0].originalname).toLowerCase() === ".png" || path.extname(req.files["addPicture"][0].originalname).toLowerCase() === ".jpg"){
+                    fs.rename(tempPathPicture, targetPathPicture, err => {
+                      if (err) return handleError(err, res);
+                      post[0]["postImages"].push("/pictures/" + post[0]["postId"]);
+                      post[0]["postFiles"].push("/files/" + post[0]["postId"]);
+                      let postHtml = fn({postId: post[0]["postId"], postText: post[0]["postText"], url: page[0]["url"], logo: page[0]["logo"], username: page[0]["name"], dateHours: now.getHours(), dateMinutes: now.getMinutes(), dateDay: now.getDate(), dateMonth: month, postImages: post[0]["postImages"], postFiles: post[0]["postFiles"]});
+                      postJson = JSON.stringify(post, null, 2);
+                      fs.writeFileSync("views/jsons/post" + post[0]["postId"] + ".json", postJson);
+                      fs.writeFileSync("views/pages/posts/post" + post[0]["postId"] + ".ejs", postHtml);
+                      collectionPost.insertOne(postContents);
+                    });
+                  } else {
+                  fs.unlink(targetPathPicture, err => {
+                    if (err) return handleError(err, res);
+                  });
+                }
+                });
+              } else {
+              fs.unlink(targetPathDocument, err => {
+                if (err) return handleError(err, res);
+              });
+              }
+            }else if(req.files["addPicture"]){
+              const tempPath = req.files["addPicture"][0].path;
+              let targetPath = path.join(__dirname, "uploads/" + req.params.id + "/picture" + post[0]["postId"] + ".png")
+
+              if (path.extname(req.files["addPicture"][0].originalname).toLowerCase() === ".png" || path.extname(req.files["addPicture"][0].originalname).toLowerCase() === ".jpg"){
+                fs.rename(tempPath, targetPath, err => {
+                  if (err) return handleError(err, res);
+                  post[0]["postImages"].push("/pictures/" + post[0]["postId"]);
+                  let postHtml = fn({postId: post[0]["postId"], postText: post[0]["postText"], url: page[0]["url"], logo: page[0]["logo"], username: page[0]["name"], dateHours: now.getHours(), dateMinutes: now.getMinutes(), dateDay: now.getDate(), dateMonth: month, postImages: post[0]["postImages"]});
+                  postJson = JSON.stringify(post, null, 2);
+                  fs.writeFileSync("views/jsons/post" + post[0]["postId"] + ".json", postJson);
+                  fs.writeFileSync("views/pages/posts/post" + post[0]["postId"] + ".ejs", postHtml);
+                  collectionPost.insertOne(postContents);
+                });
+              } else {
+              fs.unlink(tempPath, err => {
+                if (err) return handleError(err, res);
+              });
+              }
+            }else if(req.files["addDocument"]){
+                const tempPath = req.files["addDocument"][0].path;
+                let targetPath = path.join(__dirname, "uploads/" + req.params.id + "/document" + post[0]["postId"] + ".mp3")
+
+                if (path.extname(req.files["addDocument"][0].originalname).toLowerCase() === ".mp3"){
+                  fs.rename(tempPath, targetPath, err => {
+                    if (err) return handleError(err, res);
+                    post[0]["postFiles"].push("/files/" + post[0]["postId"]);
+                    let postHtml = fn({postId: post[0]["postId"], postText: post[0]["postText"], url: page[0]["url"], logo: page[0]["logo"], username: page[0]["name"], dateHours: now.getHours(), dateMinutes: now.getMinutes(), dateDay: now.getDate(), dateMonth: month, postFiles: post[0]["postFiles"]});
+                    postJson = JSON.stringify(post, null, 2);
+                    fs.writeFileSync("views/jsons/post" + post[0]["postId"] + ".json", postJson);
+                    fs.writeFileSync("views/pages/posts/post" + post[0]["postId"] + ".ejs", postHtml);
+                    collectionPost.insertOne(postContents);
+                  });
+                } else {
+                fs.unlink(tempPath, err => {
+                  if (err) return handleError(err, res);
+                });
+                }
+            }else if(req.files["addVideo"]){
+                const tempPath = req.files["addVideo"][0].path;
+                let targetPath = path.join(__dirname, "uploads/" + req.params.id + "/video" + post[0]["postId"] + ".mp4")
+
+                if (path.extname(req.files["addVideo"][0].originalname).toLowerCase() === ".mp4" || path.extname(req.files["addVideo"][0].originalname).toLowerCase() === ".avi"){
+                  fs.rename(tempPath, targetPath, err => {
+                    if (err) return handleError(err, res);
+                    post[0]["postVideos"].push("/videos/" + post[0]["postId"]);
+                    let postHtml = fn({postId: post[0]["postId"], postText: post[0]["postText"], url: page[0]["url"], logo: page[0]["logo"], username: page[0]["name"], dateHours: now.getHours(), dateMinutes: now.getMinutes(), dateDay: now.getDate(), dateMonth: month, postVideos: post[0]["postVideos"]});
+                    postJson = JSON.stringify(post, null, 2);
+                    console.log("все ок")
+                    fs.writeFileSync("views/jsons/post" + post[0]["postId"] + ".json", postJson);
+                    fs.writeFileSync("views/pages/posts/post" + post[0]["postId"] + ".ejs", postHtml);
+                    collectionPost.insertOne(postContents);
+                  });
+                } else {
+                fs.unlink(tempPath, err => {
+                  if (err) return handleError(err, res);
+                });
+              }
+            }else{
+              let postHtml = fn({postId: post[0]["postId"], postText: post[0]["postText"], url: page[0]["url"], logo: page[0]["logo"], username: page[0]["name"], dateHours: now.getHours(), dateMinutes: now.getMinutes(), dateDay: now.getDate(), dateMonth: month, postImages: post[0]["postImages"]});
+              let postJson = JSON.stringify(post, null, 2);
+              fs.writeFileSync("views/jsons/post" + post[0]["postId"] + ".json", postJson);
+              fs.writeFileSync("views/pages/posts/post" + post[0]["postId"] + ".ejs", postHtml);
+              collectionPost.insertOne(postContents);
+            }
+          })
+        }
+
       })
 
       fs.writeFileSync("views/jsons/json" + doc._id + ".json", json);
       fs.writeFileSync("views/pages/page" + doc._id + ".ejs", html);
-      fs.writeFileSync("views/jsons/post" + post[0]["postId"] + ".json", postJson);
       postId = page[0]["postValue"];
     })
+
   })
+
   res.redirect("back");
 })
 
-app.get("/user/addPost/:id", function(req, res) {
+app.get("/pictures/:id", function(req, res) {
+  let post = JSON.parse(fs.readFileSync("views/jsons/post" + req.params.id + ".json", "utf8"));
+  const collectionPost = req.app.locals.collectionPost;
+  collectionPost.findOne({postId: parseInt(req.params.id)}, function(err, doc) {
+    fs.readFile("uploads/" + doc.forUser + "/picture" + req.params.id + ".png", (err, image) => {
+      res.end(image);
+    });
+  })
+})
 
+app.get("/videos/:id", function(req, res) {
+  const collectionPost = req.app.locals.collectionPost;
+  collectionPost.findOne({postId: parseInt(req.params.id)}, function(err, doc) {
+    fs.readFile("uploads/" + doc.forUser + "/video" + req.params.id + ".mp4", (err, video) => {
+      res.end(video);
+    });
+  })
+})
+
+app.get("/files/:id", function(req, res) {
+  const collectionPost = req.app.locals.collectionPost;
+  collectionPost.findOne({postId: parseInt(req.params.id)}, function(err, doc) {
+    fs.readFile("uploads/" + doc.forUser + "/document" + req.params.id + ".mp3", (err, file) => {
+      res.end(file);
+    });
+  })
 })
 
 app.post("/user/changeAva/:id", upload.single("avaPut"), function(req, res) {
@@ -346,7 +588,24 @@ app.get("/user/changeAva/:id", function(req, res) {
   fs.readFile("uploads/" + req.params.id + "/ava.png", (err, image) => {
     res.end(image);
   });
-  res.cookie("currentLogo", req.url);
+
+  const collection = req.app.locals.collection;
+
+  collection.findOne({username: req.cookies.username}, function(err, doc) {
+    let page = JSON.parse(fs.readFileSync("views/jsons/json" + doc._id + ".json", "utf8"));
+    res.cookie("currentLogo", page[0]["logo"]);
+  })
+
+})
+
+app.get("/people", function(req, res) {
+
+    const collection = req.app.locals.collection;
+
+    collection.find().toArray(function(err, doc) {
+      res.render("people.ejs", {people: doc, username: ""})
+      console.log(doc)
+    });
 })
 
 app.get("/registration", function(req, res) {
@@ -381,6 +640,16 @@ app.post("/registration", urlencodedParser, function(req, res) {
       console.log(req.body)
     }
   }
+})
+
+app.get("/wall:id", function(req, res) {
+  const collectionPost = req.app.locals.collectionPost;
+
+  collectionPost.findOne({postId: parseInt(req.params.id)}, function(err, doc) {
+    let page = JSON.parse(fs.readFileSync("views/jsons/json" + doc.forUser + ".json", "utf8"));
+    res.render("pages/posts/post" + req.params.id + ".ejs", {url: page[0]["url"], logo: page[0]["logo"]});
+  })
+
 })
 
 app.use((req, res) =>{

@@ -2,7 +2,7 @@
   {
     "name": "thekingofmarmelad",
     "url": "/user/5dcc23c1225dce4a58ec4b8f",
-    "logo": "https://cdn2.iconfinder.com/data/icons/ios-7-icons/50/user_male2-512.png",
+    "logo": "/user/changeAva/5dcc23c1225dce4a58ec4b8f",
     "vk": "",
     "instagram": "",
     "id": "5dcc23c1225dce4a58ec4b8f",
@@ -10,6 +10,6 @@
     "subscriptions": 0,
     "localjson": "views/jsons/json5dcc23c1225dce4a58ec4b8f.json",
     "subscribe": [],
-    "postValue": 2
+    "postValue": 0
   }
 ]

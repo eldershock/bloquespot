@@ -91,7 +91,7 @@
 .container{
   display: flex;
   max-width: 1240px;
-  height: 1500px;
+  height: auto;
   background: white;
   border-radius: 20px;
   padding: 30px;
@@ -118,6 +118,10 @@
 
 .postTextTemplate{
   text-align: center;
+}
+
+.textPostAdd{
+  display: inline-block;
 }
 
 .textFieldPost{
@@ -181,4 +185,33 @@
 
 .aboutUser{
   color: grey;
+}
+
+.video{
+  height: auto;
+  width: 300px;
+}
+
+.music{
+  height: 50px;
+  width: 300px;
+}
+
+.picture{
+  width: 200px;
+  vertical-align: top;
+  margin-right: 20px;
+}
+
+.videoWrapper{
+  display: inline-block;
+}
+
+.pictureWrapper{
+  display: inline-block;
+  vertical-align: top;
+}
+
+.musicWrapper{
+  display: block;
 }
