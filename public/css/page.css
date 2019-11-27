@@ -197,6 +197,12 @@
   width: 300px;
 }
 
+.peopleAvas{
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+}
+
 .picture{
   width: 200px;
   vertical-align: top;
@@ -214,4 +220,8 @@
 
 .musicWrapper{
   display: block;
+}
+
+.subscribersUser{
+  display: inline-block;
 }

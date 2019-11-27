@@ -1,0 +1,16 @@
+[
+  {
+    "postId": 1,
+    "url": "/user/5dde493a6136c55e4087df78",
+    "logo": "https://cdn2.iconfinder.com/data/icons/ios-7-icons/50/user_male2-512.png",
+    "name": "ExampleAcc",
+    "postText": "а я веб-сервис написал :)",
+    "postImages": [
+      "/pictures/1"
+    ],
+    "postFiles": [
+      "/files/1"
+    ],
+    "postVideos": []
+  }
+]

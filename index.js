@@ -81,8 +81,14 @@ app.post("/", urlencodedParser, function(req, res) {
 })
 
 app.get("/login", function(req, res) {
+
+  const collection = req.app.locals.collection;
+
   if(req.cookies.username){
-    res.render("login.ejs", {username: req.cookies.username})
+    collection.findOne({username: req.cookies.username}, function(err, doc) {
+      let page = JSON.parse(fs.readFileSync("views/jsons/json" + doc._id + ".json", "utf8"));
+      res.render("login.ejs", {username: page[0]["username"], logo: page[0]["logo"], url: page[0]["url"]})
+    })
   }else{
     res.render("login.ejs", {username: ""})
   }
@@ -125,7 +131,7 @@ app.post("/login", urlencodedParser, function(req, res) {
 
             fs.writeFileSync("views/pages/page" + page[0]["id"] + ".ejs", html, "utf8")
             fs.writeFileSync("views/jsons/json" + page[0]["id"] + ".json", json)
-            collection.updateOne({email: req.body.email, password: req.body.pass}, {$set: {page: "pages/page" + page[0]["id"] + ".ejs", json: "jsons/json" + page[0]["id"] + ".json"}})
+            collection.updateOne({email: req.body.email, password: req.body.pass}, {$set: {page: "pages/page" + page[0]["id"] + ".ejs", json: "jsons/json" + page[0]["id"] + ".json", loggined: true}})
             res.redirect("/user/" + page[0]["id"]);
             console.log(page);
           })
@@ -143,35 +149,41 @@ app.post("/login", urlencodedParser, function(req, res) {
 })
 
 app.get("/user/:id", function(req, res) {
-  const collection = req.app.locals.collection;
-  const collectionPost = req.app.locals.collectionPost;
-  collection.findOne({_id: ObjectId(req.params.id)}, function(err, doc) {
-    console.log(doc.page)
-    pageUser = doc.page;
-    fs.readFile("views/pugs/userpage.pug", "utf8", function(err, data) {
-      if (err) throw err;
-      let page = JSON.parse(fs.readFileSync("views/jsons/json" + doc._id + ".json", "utf8"));
-      if(page[0]["postValue"] > 0){
-        postId = page[0]["postValue"];
-      }
-      fs.access("views/jsons/post" + postId + ".json", fs.F_OK, (err) =>{
-        if(err){
-          res.render(pageUser, {title: page[0]["name"], username: "@" + page[0]["name"], vk: page[0]["vk"], instgram: page[0]["instagram"], id: page[0]["id"], logo: page[0]["logo"],
-          subscribers: page[0]["subscribers"], subscriptions: page[0]["subscriptions"],
-          pathToJson: page[0]["localjson"], url: page[0]["url"], currentUser: "@" + req.cookies.username,
-          currentLogo: req.cookies.currentLogo});
-        }else{
-          collectionPost.find({forUser: req.params.id}).toArray(function(err, doc) {
+
+  if(req.cookies.username){
+
+    const collection = req.app.locals.collection;
+    const collectionPost = req.app.locals.collectionPost;
+    collection.findOne({_id: ObjectId(req.params.id)}, function(err, doc) {
+      console.log(doc.page)
+      pageUser = doc.page;
+      fs.readFile("views/pugs/userpage.pug", "utf8", function(err, data) {
+        if (err) throw err;
+        let page = JSON.parse(fs.readFileSync("views/jsons/json" + doc._id + ".json", "utf8"));
+        if(page[0]["postValue"] > 0){
+          postId = page[0]["postValue"];
+        }
+        fs.access("views/jsons/post" + postId + ".json", fs.F_OK, (err) =>{
+          if(err){
             res.render(pageUser, {title: page[0]["name"], username: "@" + page[0]["name"], vk: page[0]["vk"], instgram: page[0]["instagram"], id: page[0]["id"], logo: page[0]["logo"],
             subscribers: page[0]["subscribers"], subscriptions: page[0]["subscriptions"],
             pathToJson: page[0]["localjson"], url: page[0]["url"], currentUser: "@" + req.cookies.username,
-            currentLogo: req.cookies.currentLogo, posts: doc});
-          })
-         }
-       })
+            currentLogo: req.cookies.currentLogo});
+          }else{
+            collectionPost.find({forUser: req.params.id}).toArray(function(err, doc) {
+              res.render(pageUser, {title: page[0]["name"], username: "@" + page[0]["name"], vk: page[0]["vk"], instgram: page[0]["instagram"], id: page[0]["id"], logo: page[0]["logo"],
+              subscribers: page[0]["subscribers"], subscriptions: page[0]["subscriptions"],
+              pathToJson: page[0]["localjson"], url: page[0]["url"], currentUser: "@" + req.cookies.username,
+              currentLogo: req.cookies.currentLogo, posts: doc});
+            })
+           }
+         })
+        })
       })
-    })
-  })
+  }else{
+    res.send("я задолбался делать отображения пользователя, когда ты не вошел в систему, так что читай это :)")
+  }
+})
 
 app.post("/user/:id", urlencodedParser, function(req, res) {
 
@@ -588,36 +600,63 @@ app.get("/user/changeAva/:id", function(req, res) {
   fs.readFile("uploads/" + req.params.id + "/ava.png", (err, image) => {
     res.end(image);
   });
-
-  const collection = req.app.locals.collection;
-
-  collection.findOne({username: req.cookies.username}, function(err, doc) {
-    let page = JSON.parse(fs.readFileSync("views/jsons/json" + doc._id + ".json", "utf8"));
-    res.cookie("currentLogo", page[0]["logo"]);
-  })
-
 })
 
 app.get("/people", function(req, res) {
 
-    const collection = req.app.locals.collection;
+  const collection = req.app.locals.collection;
 
-    collection.find().toArray(function(err, doc) {
-      res.render("people.ejs", {people: doc, username: ""})
-      console.log(doc)
+  if(req.cookies.username){
+    const collection = req.app.locals.collection;
+    collection.find({loggined: true}).toArray(function(err, doc) {
+      let logos = [];
+      let subscribers = [];
+      let ids = [];
+    let page;
+      for (let i = 0; i < doc.length; i++) {
+        page = JSON.parse(fs.readFileSync("views/jsons/json" + doc[i]._id + ".json", "utf8"));
+        logos.push(page[0]["logo"])
+        subscribers.push(page[0]["subscribers"])
+        ids.push(page[0]["id"]);
+      }
+      res.render("people.ejs", {people: doc, username: page[0]["username"], logos: logos, subscribers: subscribers, id: ids, url: page[0]["url"], logo: req.cookies.currentLogo})
     });
+  }else{
+    collection.find({loggined: true}).toArray(function(err, doc) {
+      let logos = [];
+      let subscribers = [];
+        let ids = [];
+      let page;
+      for (let i = 0; i < doc.length; i++) {
+        let page = JSON.parse(fs.readFileSync("views/jsons/json" + doc[i]._id + ".json", "utf8"));
+        logos.push(page[0]["logo"])
+        subscribers.push(page[0]["subscribers"])
+        ids.push(page[0]["id"]);
+      }
+      res.render("people.ejs", {people: doc, username: "", logos: logos, subscribers: subscribers, id: ids})
+    })
+  }
 })
 
 app.get("/registration", function(req, res) {
-  if(req.cookies){
-    res.render("registration.ejs", {username: ""})
+
+  const collection = req.app.locals.collection;
+
+  if(req.cookies.username){
+    collection.findOne({username: req.cookies.username}, function(err, doc) {
+      let page = JSON.parse(fs.readFileSync("views/jsons/json" + doc._id + ".json", "utf8"));
+      res.render("registration.ejs", {username: page[0]["username"], logo: page[0]["logo"], url: page[0]["url"]})
+    })
   }else{
     res.render("registration.ejs", {username: ""})
   }
+
 })
 
 app.post("/registration", urlencodedParser, function(req, res) {
   if(!req.body) return res.sendStatus(400);
+
+  const collection = req.app.locals.collection;
 
   if(req.cookies.username){
     res.render("registration.ejs", {username: ""})
@@ -631,8 +670,6 @@ app.post("/registration", urlencodedParser, function(req, res) {
         username: req.body.user,
         password: req.body.pass
       }
-
-      const collection = req.app.locals.collection;
 
       collection.insertOne(user);
 
@@ -653,7 +690,17 @@ app.get("/wall:id", function(req, res) {
 })
 
 app.use((req, res) =>{
-  res.status(404).render("404.ejs")
+
+  const collection = req.app.locals.collection;
+
+  if(req.cookies.username){
+    collection.findOne({username: req.cookies.username}, function(err, doc) {
+      let page = JSON.parse(fs.readFileSync("views/jsons/json" + doc._id + ".json", "utf8"));
+      res.status(404).render("404.ejs", {username: page[0]["username"], logo: page[0]["logo"], url: page[0]["url"]})
+    })
+  }else{
+    res.status(404).render("404.ejs", {username: ""})
+  }
 })
 
 process.on("SIGINT", () => {

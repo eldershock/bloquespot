@@ -14,7 +14,9 @@ html
           h5(class="text-white h4") Вы вошли как <%- currentUser %>
           span.text-muted
             div.loginnedAs
-              <img src= <%- currentLogo %> id="miniAva" class="ava" />
+              <a href="/user/<%- id %>">
+                <img src= <%- currentLogo %> id="miniAva" class="ava" />
+              </a>
               a(href="/" class="linkTo") Выход
               a(href="/" class="linkTo") Главная страница
       nav(class="navbar navbar-dark bg-dark")

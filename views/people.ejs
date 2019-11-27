@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="/public/css/style.css">
     <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/page.css">
   </head>
   <body>
     <% include blocks/header.ejs %>
@@ -16,8 +17,19 @@
       <div class="container">
         <div class="content">
           <div class="people">
-            <% for(let i = 0; i < people.length; i ++){ %>
-              <p><%- people[i].username %></p>
+            <% for(let i = 0; i < people.length; i++){ %>
+              <div id=<%- i %>>
+                <div class="mainInfoUser">
+                  <div id="user_<%- i %>" style="display: inline-block">
+                    <a href="/user/<%- id[i] %>"><img src="<%- logos[i] %>" class="peopleAvas"></a>
+                    <p><%- people[i].username %></p>
+                  </div>
+                  <div class="subscribersUser">
+                    <h4 style="display: inline-block"><%- subscribers[i] %></h4>
+                    <p style="display: inline-block">подписчиков</p>
+                  </div>
+                </div>
+              </div>
             <% } %>
           </div>
         </div>
